@@ -2,9 +2,14 @@ import React from "react";
 import Image from "next/image";
 import { SearchIcon, PlusCircleIcon } from "@heroicons/react/outline";
 import { HomeIcon } from "@heroicons/react/solid";
-import Home from "@/pages";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { useRecoilState } from "recoil";
+import { modalState } from "@/atom/modalAtom";
 
 export default function Header() {
+  const { data: session } = useSession();
+  const [open, setOpen] = useRecoilState(modalState);
+
   return (
     <>
       <div className="shadow-sm border-b sticky top-0 bg-white z-30">
@@ -45,13 +50,21 @@ export default function Header() {
           {/* Right */}
 
           <div className="flex space-x-4 items-center">
-            <HomeIcon className="hidden md:inline-flex h-6 cursor-pointer hover:scale-125 transition-transform duration-200 ease-out" />
-            <PlusCircleIcon className="h-6 cursor-pointer hover:scale-125 transition-transform duration-200 ease-out" />
-            <img
-              src="https://media.licdn.com/dms/image/D4D03AQHVEtsCODP-QQ/profile-displayphoto-shrink_800_800/0/1673711126433?e=2147483647&v=beta&t=zvyJRW9Z7JLgdxY98qiv6CG8ozrROcBGjrJGvua26Hc"
-              alt="user-image"
-              className="h-10 rounded-full cursor-pointer"
-            />
+          
+            {session ? (
+              <>
+                <HomeIcon className="hidden md:inline-flex h-6 cursor-pointer hover:scale-125 transition-transform duration-200 ease-out" />
+                <PlusCircleIcon onClick={() => setOpen(true)} className="h-6 cursor-pointer hover:scale-125 transition-transform duration-200 ease-out" />
+                <img
+                  onClick={signOut}
+                  src={session.user.image}
+                  alt="user-image"
+                  className="h-10 rounded-full cursor-pointer"
+                />
+              </>
+            ) : (
+              <button onClick={signIn}>Sign In</button>
+            )}
           </div>
         </div>
       </div>
